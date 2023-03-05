@@ -9,13 +9,15 @@ class LinearRegression:
         self.base_functions = base_functions
         self.reg_coeff = reg_coeff
 
-
     def __pseudoinverse_matrix(self, matrix: np.ndarray) -> np.ndarray:
         """calculate pseudoinverse matrix using SVD"""
         u, sigma, v = np.linalg.svd(matrix)
         for i in range(sigma.size):
             if sigma[i] > np.finfo(float).eps * max(matrix.shape[0], matrix.shape[1]) * np.max(sigma):
-                sigma[i] = sigma[i] / (sigma[i] * sigma[i] + self.reg_coeff)
+                if i == 0:
+                    sigma[i] = 1 / sigma[i]
+                else:
+                    sigma[i] = sigma[i] / (sigma[i] * sigma[i] + self.reg_coeff)
             else:
                 sigma[i] = 0
         sigma_plus = np.zeros((matrix.shape[0], matrix.shape[1]))

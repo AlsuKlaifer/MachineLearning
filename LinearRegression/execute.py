@@ -19,7 +19,8 @@ def experiment(lin_reg_cfg, lin_reg_dataset, visualise_prediction=True):
     model (max degree + regularisation coefficient), y-axis error on valid set; add to hover_data error on test set"""
 
     # training
-    lin_reg_model = LinearRegression(lin_reg_cfg.base_functions, 2)
+    lin_reg_cfg.update(regularization_coeff=2)
+    lin_reg_model = LinearRegression(lin_reg_cfg.base_functions, lin_reg_cfg.regularization_coeff)
     lin_reg_model.train_model(lin_reg_dataset()['inputs']['train'], lin_reg_dataset()['targets']['train'])
 
     # validation
@@ -27,7 +28,8 @@ def experiment(lin_reg_cfg, lin_reg_dataset, visualise_prediction=True):
     results = []
     for i in range(max_degrees.size):
         lin_reg_cfg.update(base_functions=[lambda x, arg=i: pow(x, arg) for i in range(max_degrees[i] + 1)])
-        lin_reg_model = LinearRegression(lin_reg_cfg.base_functions, reg_coefficients[i])
+        lin_reg_cfg.update(regularization_coeff=reg_coefficients[i])
+        lin_reg_model = LinearRegression(lin_reg_cfg.base_functions, lin_reg_cfg.regularization_coeff)
         lin_reg_model.train_model(lin_reg_dataset()['inputs']['valid'], lin_reg_dataset()['targets']['valid'])
         predictions = lin_reg_model(lin_reg_dataset()['inputs']['valid'])
         error = MSE(predictions, lin_reg_dataset()['targets']['valid'])
@@ -53,8 +55,10 @@ def experiment(lin_reg_cfg, lin_reg_dataset, visualise_prediction=True):
 def experiment_2(lin_reg_cfg, lin_reg_dataset, max_degree: int, reg_coeff: float, visualise_prediction=True):
     """make plots with two traces - model prediction and target values; target trace need to be in markers mode,
     model prediction - line; make plot for model with or without regularisation max degree of polynomials 100"""
+
     lin_reg_cfg.update(base_functions=[lambda x, arg=i: pow(x, arg) for i in range(max_degree + 1)])
-    lin_reg_model = LinearRegression(lin_reg_cfg.base_functions, reg_coeff)
+    lin_reg_cfg.update(regularization_coeff=reg_coeff)
+    lin_reg_model = LinearRegression(lin_reg_cfg.base_functions, lin_reg_cfg.regularization_coeff)
     lin_reg_model.train_model(lin_reg_dataset()['inputs']['train'], lin_reg_dataset()['targets']['train'])
     predictions = lin_reg_model(lin_reg_dataset()['inputs']['test'])
     error = MSE(predictions, lin_reg_dataset()['targets']['test'])
