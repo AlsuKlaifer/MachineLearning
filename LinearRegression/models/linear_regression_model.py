@@ -12,14 +12,16 @@ class LinearRegression:
     def __pseudoinverse_matrix(self, matrix: np.ndarray) -> np.ndarray:
         """calculate pseudoinverse matrix using SVD"""
         u, sigma, v = np.linalg.svd(matrix)
-        for i in range(sigma.size):
-            if sigma[i] > np.finfo(float).eps * max(matrix.shape[0], matrix.shape[1]) * np.max(sigma):
-                if i == 0:
-                    sigma[i] = 1 / sigma[i]
-                else:
-                    sigma[i] = sigma[i] / (sigma[i] * sigma[i] + self.reg_coeff)
-            else:
-                sigma[i] = 0
+
+        epsilon = np.finfo(float).eps * max(matrix.shape[0], matrix.shape[1]) * np.max(sigma)
+        sigma_0 = sigma[0]
+        indices = np.where(sigma <= epsilon)[0]
+        sigma[indices] = 0
+        indices = np.where(sigma > epsilon)[0]
+        sigma[indices] = sigma[indices] / (sigma[indices] * sigma[indices] + self.reg_coeff)
+        if 0 in indices:
+            sigma[0] = 1 / sigma_0
+
         sigma_plus = np.zeros((matrix.shape[0], matrix.shape[1]))
         sigma_plus[:matrix.shape[1], :min(matrix.shape[1], matrix.shape[0])] = np.diag(sigma)
         sigma_plus = sigma_plus.T
