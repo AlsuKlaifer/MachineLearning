@@ -10,11 +10,14 @@ class LogReg:
         self.k = number_classes
         self.d = input_vector_dimension
         self.cfg = cfg
+        self.weights = None
+        self.b = None
         getattr(self, f'weights_init_{cfg.weights_init_type.name}')(**cfg.weights_init_kwargs)
 
     def weights_init_normal(self, sigma):
-        # TODO init weights with values from normal distribution
-        pass
+        # init weights with values from normal distribution
+        self.weights = 0.0 + sigma * np.random.randn(self.k, self.d)
+        self.b = 0.0 + sigma * np.random.randn(self.k, 1)
 
     def weights_init_uniform(self, epsilon):
         # TODO init weights with values from uniform distribution BONUS TASK
@@ -29,10 +32,10 @@ class LogReg:
         pass
 
     def __softmax(self, model_output: np.ndarray) -> np.ndarray:
-        # TODO softmax function realisation
-        #  subtract max value of the model_output for numerical stability
-
-        pass
+        z = model_output
+        z = z - np.max(z)
+        y = np.exp(z) / np.sum(np.exp(z), axis=0)
+        return y
 
     def get_model_confidence(self, inputs: np.ndarray) -> np.ndarray:
         # calculate model confidence (y in lecture)
@@ -41,23 +44,25 @@ class LogReg:
         return y
 
     def __get_model_output(self, inputs: np.ndarray) -> np.ndarray:
-        # TODO calculate model output (z in lecture) using matrix multiplication DONT USE LOOPS
-        pass
+        # calculate model output (z) using matrix multiplication
+        z = np.dot(self.weights, inputs.T) + self.b  # w - k x d, inputs - n x d, b - k x 1
+        return z
 
     def __get_gradient_w(self, inputs: np.ndarray, targets: np.ndarray, model_confidence: np.ndarray) -> np.ndarray:
-        # TODO calculate gradient for w
-        #  slide 10 in presentation
-        pass
+        y = model_confidence
+        return np.dot(y - targets.T, inputs)
 
     def __get_gradient_b(self, targets: np.ndarray, model_confidence: np.ndarray) -> np.ndarray:
-        # TODO calculate gradient for b
-        #  slide 10 in presentation
-        pass
+        y = model_confidence
+        u = np.array([np.ones(targets.shape[0])])  # u - 1 x n
+        return np.dot(y - targets.T, u.T)
 
     def __weights_update(self, inputs: np.ndarray, targets: np.ndarray, model_confidence: np.ndarray):
-        # TODO update model weights
-        #  slide 8, item 2 in presentation for updating weights
-        pass
+        # update model weights
+        grad_w = self.__get_gradient_w(inputs, targets, model_confidence)
+        grad_b = self.__get_gradient_b(targets, model_confidence)
+        self.weights = self.weights - self.cfg.gamma * grad_w
+        self.b = self.b - self.cfg.gamma * grad_b    
 
     def __gradient_descent_step(self, inputs_train: np.ndarray, targets_train: np.ndarray,
                                 epoch: int, inputs_valid: Union[np.ndarray, None] = None,
