@@ -79,5 +79,5 @@ class BaseClassificationDataset(BaseDataset):
     @staticmethod
     def onehotencoding(targets: np.ndarray, number_classes: int) -> np.ndarray:
         # create matrix of onehot encoding vectors for input targets
-        targets = np.arrray(targets).reshape(-1)
+        targets = np.array(targets).reshape(-1)
         return np.eye(number_classes)[targets]
