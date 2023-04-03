@@ -49,9 +49,11 @@ class BaseDataset(ABC):
         # write normalization method BONUS TASK
         min_input = np.min(self.inputs, axis=0)  # axis - calculate by each dimension
         max_input = np.max(self.inputs, axis=0)  # axis 0 - ищем максимум в столбце
-        self.inputs_train = (self.inputs_train - min_input) / (max_input - min_input)
-        self.inputs_valid = (self.inputs_valid - min_input) / (max_input - min_input)
-        self.inputs_test = (self.inputs_test - min_input) / (max_input - min_input)
+        difference = max_input - min_input
+        difference[difference == 0] = 1
+        self.inputs_train = (self.inputs_train - min_input) / difference
+        self.inputs_valid = (self.inputs_valid - min_input) / difference
+        self.inputs_test = (self.inputs_test - min_input) / difference
 
     def __get_data_stats(self):
         # calculate mean and std of inputs vectors of training set by each dimension
@@ -66,6 +68,7 @@ class BaseDataset(ABC):
         self.inputs_train = (self.inputs_train - mean) / std
         self.inputs_valid = (self.inputs_valid - mean) / std
         self.inputs_test = (self.inputs_test - mean) / std
+        return mean, std
 
 
 class BaseClassificationDataset(BaseDataset):

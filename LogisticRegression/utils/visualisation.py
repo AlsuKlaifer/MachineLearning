@@ -1,4 +1,6 @@
+import numpy as np
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 
 class Visualisation:
@@ -17,4 +19,13 @@ class Visualisation:
                           yaxis_title=y_title)
         fig.update_traces(hoverinfo='all',
                           hovertemplate='Epoch: %{x}<br>%{hovertext}: %{y}')
+        fig.show()
+
+    @staticmethod
+    def visualise_images(images: list[np.ndarray], predictions: list, plot_title=''):
+        fig = make_subplots(rows=1, cols=len(images))
+        for i in range(len(images)):
+            images[i] = np.flip(np.reshape(images[i], (8, 8)), axis=0)
+            fig.add_trace(go.Heatmap(z=images[i], name=str(predictions[i]), coloraxis='coloraxis'), row=1, col=i + 1)
+        fig.update_layout(title=plot_title, coloraxis={'colorscale': 'gray_r'}, width=960, height=540)
         fig.show()

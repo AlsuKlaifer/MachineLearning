@@ -24,7 +24,7 @@ class Digits(BaseClassificationDataset):
 
         # preprocessing
         if cfg.data_preprocess_type.value == DataProcessTypes.standardization.value:
-            self.standardization()
+            self.mean, self.std = self.standardization()
         elif cfg.data_preprocess_type.value == DataProcessTypes.normalization.value:
             self.normalization()
         else:
