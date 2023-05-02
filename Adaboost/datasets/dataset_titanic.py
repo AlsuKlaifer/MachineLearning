@@ -1,10 +1,11 @@
-import pandas as pd
+from easydict import EasyDict
+from utils.common_functions import read_dataframe_file
 
 
 class Titanic:
-    def __init__(self, path2train, path2test):
-        self.train_set_csv = pd.read_csv(path2train)
-        self.test_set_csv = pd.read_csv(path2test)
+    def __init__(self, cfg: EasyDict):
+        self.train_set_csv = read_dataframe_file(cfg.train_dataframe_path)
+        self.test_set_csv = read_dataframe_file(cfg.test_dataframe_path)
 
     def __call__(self):
         return {'train_input': self.train_set_csv.values[:, 3:],
